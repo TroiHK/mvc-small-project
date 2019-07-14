@@ -22,12 +22,18 @@ class Main_Controller extends Base_Controller
 
         $this->model->load('main');
         $main_model = new Main_Model();
-
         $data['backnumber'] = $main_model->all($_GET);
+
+        $data['vol_id'] = isset($_GET['vol_id']) ? $_GET['vol_id'] : -1;
+        $data['pdf_page'] = isset($_GET['pdf_page']) ? $_GET['pdf_page'] : "";
+        $data['book_page'] = isset($_GET['book_page']) ? $_GET['book_page'] : "";
+        $data['category_id'] = isset($_GET['category_id']) ? $_GET['category_id'] : -1;
+        $data['content'] = isset($_GET['content']) ? $_GET['content'] : "";
+        $data['series_name'] = isset($_GET['series_name']) ? $_GET['series_name'] : "";
 
         $this->load_header();
         $this->load_top_bar();
-        $this->view->load('main', $data);
+        $this->view->load('index', $data);
         $this->load_footer();
         $main_model->db_close();
     }

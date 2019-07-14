@@ -53,7 +53,7 @@ class Main_Model extends KL_Model
                 } else {
                     $where_item = array(
                         'key' => 'backnumber_' . $k,
-                        'value' => '%' . $v . '%',
+                        'value' => $v,
                         'operator' => '='
                     );
                     $where[] = $where_item;

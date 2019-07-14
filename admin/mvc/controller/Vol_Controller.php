@@ -6,7 +6,6 @@ class Vol_Controller extends Base_Controller
     {
         $this->model->load('vol');
         $model = new Vol_Model();
-
         $data = $model->all();
 
         $this->load_header();
@@ -31,11 +30,13 @@ class Vol_Controller extends Base_Controller
 
         if ($dataPost) {
             $error = $model->edit($id, $dataPost);
+
             if (!$error) {
                 $model->db_close();
                 header('Location: /admin/vol/');
                 exit;
             }
+
             $data['error'] = 'Update error, Please check input data';
         }
 
@@ -84,7 +85,7 @@ class Vol_Controller extends Base_Controller
         $id = $_GET['id'];
 
         if (!$id) {
-            header('Location: /admin/category/');
+            header('Location: /admin/vol/');
             exit;
         }
 
