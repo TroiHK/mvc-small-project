@@ -9,6 +9,8 @@ $(document).ready(function () {
         //   "searchable": false
         // } ],
         // "order": [],
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        "pageLength": pageLength * 1,
         "ordering": false,
         "autoWidth": false,
         "stateSave": true
@@ -20,5 +22,12 @@ $(document).ready(function () {
         "ordering": false,
         "autoWidth": false,
         "stateSave": true
+    });
+
+    $('.dataTable-nosearchlenght').DataTable({
+        "pageLength": -1,
+        "ordering": false,
+        "lengthChange": false,
+        "searching": false,
     });
 });

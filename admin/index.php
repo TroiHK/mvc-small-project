@@ -1,11 +1,11 @@
 <?php
 // Load config
-include_once __DIR__ . '/admin_path.php';
+include_once dirname(__FILE__) . '/admin_path.php';
 
 // check login
-if(!isset($_SESSION["AdminId"])){
-    header('Location: /admin/login/');
-    exit;
+if(!isset($_SESSION["user_id"])){
+  header('Location: /admin/login/');
+  exit;
 }
 
 // Mở file KL_Common.php, file này chứa hàm KL_Load() chạy hệ thống

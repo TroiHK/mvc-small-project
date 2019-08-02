@@ -1,29 +1,44 @@
-<?php if ( ! defined('PATH_SYSTEM')) die ('Bad requested!');
+<?php if (!defined('PATH_SYSTEM')) die('Bad requested!');
 
 class Main_Controller extends Base_Controller
 {
     public function indexAction()
     {
-        $this->model->load('vol');
-        $vol_model = new Vol_Model();
-        $vol_list = $vol_model->shortVol();
+        // Get vol
+        $data_vol = get_cache('vol');
 
-        foreach ($vol_list as $value) {
-            $data['vol'][$value['vol_number']] = $value;
+        if ($data_vol) {
+            foreach ($data_vol as $value) {
+                $data['vol'][$value['vol_number']] = $value;
+            }
         }
 
-        $this->model->load('category');
-        $category_model = new Category_Model();
-        $category_list = $category_model->shortCate();
-
-        foreach ($category_list as $value) {
-            $data['category'][$value['category_id']] = $value;
+        // Get category
+        $data_category = get_cache('category');
+        if ($data_category) {
+            foreach ($data_category as $value) {
+                $data['category'][$value['category_id']] = $value;
+            }
         }
 
-        $this->model->load('main');
-        $main_model = new Main_Model();
-        $data['backnumber'] = $main_model->all($_GET);
+        // Get Backnumber html
+        $data_cache_backnumber = get_cache('backnumber_main_' . LANGUAGE_CODE);
 
+        if (empty($data_cache_backnumber) || count($_GET) > 1) {
+            $this->model->load('main');
+            $main_model = new Main_Model();
+            $data_backnumber = $main_model->all($_GET);
+            $data['backnumber_html'] = $main_model->renderList($data_backnumber, $data['vol'], $data['category']);
+            $main_model->db_close();
+
+            if (empty($data_cache_backnumber) && ((count($_GET) == 0) || (isset($_GET['lang']) && count($_GET) == 1))) {
+                set_cache('backnumber_main_' . LANGUAGE_CODE, $data['backnumber_html']);
+            }
+        } else {
+            $data['backnumber_html'] = $data_cache_backnumber;
+        }
+
+        // Set $_GET variable
         $data['vol_id'] = isset($_GET['vol_id']) ? $_GET['vol_id'] : -1;
         $data['pdf_page'] = isset($_GET['pdf_page']) ? $_GET['pdf_page'] : "";
         $data['book_page'] = isset($_GET['book_page']) ? $_GET['book_page'] : "";
@@ -31,45 +46,56 @@ class Main_Controller extends Base_Controller
         $data['content'] = isset($_GET['content']) ? $_GET['content'] : "";
         $data['series_name'] = isset($_GET['series_name']) ? $_GET['series_name'] : "";
 
+        // Render HTML
         $this->load_header();
         $this->load_top_bar();
         $this->view->load('index', $data);
         $this->load_footer();
-        $main_model->db_close();
     }
 
     public function importAction()
     {
-        $this->library->load('simpleXLS');
+        // Include Library
+        require_once(PATH_VENDOR . '/spreadsheet-reader/php-excel-reader/excel_reader2.php');
+        require_once(PATH_VENDOR . '/spreadsheet-reader/SpreadsheetReader.php');
 
-        $data = $_FILES;
-        $fileName = $data["file"]["tmp_name"];
-
-        $data_xls = array();
-        if ($data["file"]["size"] > 0) {
-            $xls = new SimpleXLS_Library($fileName);
-            if ($xls->success()) {
-                $data_xls = $xls->rows();
-            } else {
-                echo 'xls error: ' . $xls->error();
-                die();
-            }
+        // Move file import to server
+        $targetPath = $_SERVER['DOCUMENT_ROOT'] . '/' . PATH_UPLOADS . '/import-files/' . $_FILES['file']['name'];
+        if (file_exists($targetPath)) {
+            unlink($targetPath);
         }
+        move_uploaded_file($_FILES['file']['tmp_name'], $targetPath);
 
-        $this->model->load('main');
-        $model = new Main_Model();
+        // Import to db
+        try {
+            $Spreadsheet = new SpreadsheetReader($targetPath);
+            // $BaseMem = memory_get_usage();
+            $Sheets = $Spreadsheet->Sheets();
 
-        $error = "";
-        if ( $data_xls ) {
-            $error = $model->import($data_xls);
+            foreach ($Sheets as $Index => $Name) {
+                $Spreadsheet->ChangeSheet($Index);
 
-            if ( empty($error) ) {
-                $model->db_close();
-                header('Location: /admin/backnumber/');
-                exit;
+                $this->model->load('main');
+                $model = new Main_Model();
+
+                $error = "";
+                if ($Spreadsheet) {
+                    $error = $model->import($Spreadsheet);
+                    $model->db_close();
+
+                    if (empty($error)) {
+                        delete_cache('backnumber_vi');
+                        delete_cache('backnumber_ja');
+                        delete_cache('backnumber_main_vi');
+                        delete_cache('backnumber_main_ja');
+                        header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
+                        exit;
+                    }
+                }
+                echo 'Lỗi dòng ' . $error;
             }
+        } catch (Exception $E) {
+            echo $E->getMessage();
         }
-        echo 'Lỗi dòng '. $error;
-        $model->db_close();
     }
 }

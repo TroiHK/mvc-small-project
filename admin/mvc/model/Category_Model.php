@@ -11,7 +11,7 @@ class Category_Model extends KL_Model
             'category_description_ja' => $data['description-ja'],
             'category_status' => 1,
             'category_create_date' => date("Y-m-d H:i:s"),
-            'category_create_user' => $_SESSION['AdminId'],
+            'category_create_user' => $_SESSION['user_id'],
         );
 
         $id = $this->db_insert($row, 'category');
@@ -49,29 +49,12 @@ class Category_Model extends KL_Model
         return true;
     }
 
-    public function getRowById($id)
-    {
-        $sql = "SELECT * FROM category WHERE category_id=" . $id;
-        return $this->db_get_row($sql);
-    }
 
     public function delete($id)
     {
         $sql = "DELETE FROM category WHERE category_id=" . $id;
         $error = $this->db_execute($sql);
         return !$error;
-    }
-
-    public function all()
-    {
-        $sql = "SELECT * FROM category ORDER BY category_id DESC";
-        return $this->db_get_list($sql);
-    }
-
-    public function shortCate()
-    {
-        $sql = "SELECT category_id, category_name_vi, category_name_ja FROM category ORDER BY category_id DESC";
-        return $this->db_get_list($sql);
     }
 
     public function deleteAll($arr){

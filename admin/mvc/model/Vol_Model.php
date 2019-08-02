@@ -9,7 +9,7 @@ class Vol_Model extends KL_Model
             'vol_name' => $data['name'],
             'vol_status' => 1,
             'vol_create_date' => date("Y-m-d H:i:s"),
-            'vol_create_user' => $_SESSION['AdminId'],
+            'vol_create_user' => $_SESSION['user_id'],
         );
 
         $target_dir = PATH_UPLOADS . '/vol/';
@@ -19,28 +19,18 @@ class Vol_Model extends KL_Model
             $row['vol_image'] = $target_dir . 'images/' . basename(strtolower($nameImage));
         }
 
-        if (isset($_FILES["pdf"]["name"]) && !empty($_FILES["pdf"]["name"])) {
-            $row['vol_pdf'] = $target_dir . 'pdf/' . basename($_FILES["pdf"]["name"]);
+        if (isset($data["vol_pdf"]) && !empty($data["vol_pdf"])) {
+            $row['vol_pdf'] = $target_dir . 'pdf/' . basename($data["vol_pdf"]);
         }
 
         $id = $this->db_insert($row, 'vol');
 
         if (isset($id) && !empty($id)) {
             $dirImage = isset($row['vol_image']) ? $_SERVER['DOCUMENT_ROOT'] . '/' . $row['vol_image'] : false;
-            $dirPdf = isset($row['vol_pdf']) ? $_SERVER['DOCUMENT_ROOT'] . '/' . $row['vol_pdf'] : false;
 
             if ( $dirImage ) {
-                if (file_exists($dirImage)) {
-                    unlink($dirImage);
-                }
                 move_uploaded_file($_FILES['image']['tmp_name'], $dirImage);
-            }
-
-            if ( $dirPdf ) {
-                if (file_exists($dirPdf)) {
-                    unlink($dirPdf);
-                }
-                move_uploaded_file($_FILES['pdf']['tmp_name'], $dirPdf);
+                $this->imagick($row['vol_image'], $target_dir . 'images/');
             }
 
             return false;
@@ -63,8 +53,8 @@ class Vol_Model extends KL_Model
             $row['vol_image'] = $target_dir . 'images/' . basename(strtolower($nameImage));
         }
 
-        if (isset($_FILES["vol_pdf"]["name"]) && !empty($_FILES["vol_pdf"]["name"])) {
-            $row['vol_pdf'] = $target_dir . 'pdf/' . basename($_FILES["vol_pdf"]["name"]);
+        if (isset($data["vol_pdf"]) && !empty($data["vol_pdf"])) {
+            $row['vol_pdf'] = $target_dir . 'pdf/' . basename($data["vol_pdf"]);
         }
 
         $where = array(
@@ -79,20 +69,13 @@ class Vol_Model extends KL_Model
 
         if ($status) {
             $dirImage = isset($row['vol_image']) ? $_SERVER['DOCUMENT_ROOT'] . '/' . $row['vol_image'] : false;
-            $dirPdf = isset($row['vol_pdf']) ? $_SERVER['DOCUMENT_ROOT'] . '/' . $row['vol_pdf'] : false;
 
             if ( $dirImage ) {
                 if (file_exists($dirImage)) {
                     unlink($dirImage);
                 }
                 move_uploaded_file($_FILES['vol_image']['tmp_name'], $dirImage);
-            }
-
-            if ( $dirPdf ) {
-                if (file_exists($dirPdf)) {
-                    unlink($dirPdf);
-                }
-                move_uploaded_file($_FILES['vol_pdf']['tmp_name'], $dirPdf);
+                $this->imagick($row['vol_image'], $target_dir . 'images/');
             }
 
             return false;
@@ -113,21 +96,30 @@ class Vol_Model extends KL_Model
         return !$error;
     }
 
-    public function all()
-    {
-        $sql = "SELECT * FROM vol ORDER BY vol_number DESC";
-        return $this->db_get_list($sql);
-    }
+    public function imagick($file_path, $output) {
+        $file_path = $file_path ? $_SERVER['DOCUMENT_ROOT'] . '/' . $file_path : false;
+        if ( IMAGICK && file_exists($file_path) ) {
+            $img = new Imagick();
 
-    public function shortVol()
-    {
-        $sql = "SELECT vol_number, vol_name, vol_pdf FROM vol ORDER BY vol_number DESC";
-        return $this->db_get_list($sql);
-    }
+            $path_parts = pathinfo($file_path);
+            $file_name = $path_parts['filename'];
+            $file_ext = $path_parts['extension'];
 
-    public function getRowById($id)
-    {
-        $sql = "SELECT * FROM vol WHERE vol_id=" . $id;
-        return $this->db_get_row($sql);
+            // $dest1 = $_SERVER['DOCUMENT_ROOT'] . '/' . $output . $file_name . '-op.' . $path_parts['extension'];
+            $dest2 = $_SERVER['DOCUMENT_ROOT'] . '/' . $output . $file_name . '-thumb.' . $path_parts['extension'];
+
+            $img->readImage($file_path);
+            // $img->setImageCompression(imagick::COMPRESSION_JPEG);
+            // $img->setImageCompressionQuality(80);
+
+            $img->stripImage();
+            // file_put_contents($dest1, $img);
+
+            $img->resizeImage(75, 0, imagick::FILTER_LANCZOS, 1);
+            file_put_contents($dest2, $img);
+
+            $img->clear();
+            $img->destroy();
+        }
     }
 }

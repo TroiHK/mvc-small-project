@@ -1,6 +1,6 @@
-<?php if ( ! defined('PATH_SYSTEM')) die ('Bad requested!'); ?>
+<?php if (!defined('PATH_SYSTEM')) die('Bad requested!'); ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo LANGUAGE_CODE ?>">
 
 <head>
 
@@ -10,29 +10,39 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>BackNumber CMS</title>
+    <title>KILALA BackNumber Systems</title>
 
     <!-- Custom fonts for this template -->
     <link href="/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Select2 styles for this template -->
+    <link href="/assets/vendor/select2/select2.min.css" rel="stylesheet">
+    <link href="/vendor/BigUpload/style.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="/assets/css/sb-admin-2.css" rel="stylesheet">
 
     <!-- Custom styles for this page -->
     <link href="/assets/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="/assets/vendor/jquery/jquery.min.js"></script>
+    <script>
+        var pageLength = <?php echo isset($_SESSION['setting']['row']) && !empty($_SESSION['setting']['row']) ? $_SESSION['setting']['row'] : 10 ?>
+
+        if (localStorage.getItem("row")) {
+            pageLength = localStorage.getItem("row");
+        }
+    </script>
 
 </head>
 
-<body id="page-top" style="overflow-y:scroll;">
+<body id="page-top" class="loading sidebar-toggled" style="overflow-y:scroll;">
 
-<!-- Page Wrapper -->
-<div id="wrapper">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
 
-    <!-- Sidebar -->
-    <?php include 'sidebar.php' ?>
-    <!-- End of Sidebar -->
+        <!-- Sidebar -->
+        <?php include 'sidebar.php' ?>
+        <!-- End of Sidebar -->
 
-    <!-- Main Content -->
-    <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Main Content -->
+        <div id="content-wrapper" class="d-flex flex-column">

@@ -4,25 +4,26 @@ class Login_Controller extends Base_Controller
 {
     public function indexAction()
     {
-        if ( isset($_SESSION["AdminId"]) ) {
-            header('Location: /admin/');
+        if ( isset($_SESSION["user_id"]) ) {
+            header('Location: /admin/?lang='.LANGUAGE_CODE);
             exit;
         }
 
-        $this->library->load('custom');
-        $library = new Custom_Library();
-
-        $this->model->load('login');
-        $model = new Login_Model();
-
         $error = false;
         $data = $_POST;
+
         if ( $data ) {
+            $this->library->load('custom');
+            $library = new Custom_Library();
+
+            $this->model->load('login');
+            $model = new Login_Model();
             $error = $model->check_login($data, $library);
+            $model->db_close();
 
             if ( !$error ) {
-                $model->db_close();
-                header('Location: /admin/');
+                $lang = $_SESSION['setting']['default_language'] ? $_SESSION['setting']['default_language'] : 'vi';
+                header('Location: /admin/?lang='.$lang);
                 exit;
             }
         }
@@ -31,7 +32,28 @@ class Login_Controller extends Base_Controller
         $this->load_header('blocks/header-login');
         $this->view->load('login', $data);
         $this->load_footer('blocks/footer-login');
-        $model->db_close();
+    }
+
+    public function forgot_passwordAction()
+    {
+        $email = $_POST['user-email'];
+        if(isset($email) && !empty($email)){
+            $this->library->load('custom');
+            $library = new Custom_Library();
+
+            $this->model->load('login');
+            $model = new Login_Model();
+            $error = $model->forgot_password($email,$library);
+            $model->db_close();
+
+            if ( !$error ) {
+                header('Location: /admin/login?status=1');
+                exit;
+            }
+        }
+
+        header('Location: /admin/login?status=2');
+        exit;
     }
 
     public function logoutAction()

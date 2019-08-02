@@ -6,8 +6,12 @@ class Main_Model extends KL_Model
     {
         $error = '';
         $i = 2;
-        foreach ($data as $value) {
+        // var_dump($data);
+        // die();
+        foreach ($data as $key => $value) {
             if ($value[0] == 'Vol') continue;
+            $id = 0;
+
             $row = array(
                 'backnumber_vol_id' => $value[0],
                 'backnumber_category_id' => $value[3],
@@ -19,16 +23,65 @@ class Main_Model extends KL_Model
                 'backnumber_content_ja' => $value[8],
                 'backnumber_status' => 1,
                 'backnumber_create_date' => date("Y-m-d H:i:s"),
-                'backnumber_create_user' => $_SESSION['AdminId'],
+                'backnumber_create_user' => $_SESSION['user_id'],
             );
 
-            $id = $this->db_insert($row, 'backnumber');
+            $arr = array(
+                'table' => 'backnumber',
+                'where' => array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => 'backnumber_vol_id',
+                        'value' => $value[0],
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_category_id',
+                        'value' => $value[3],
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_pdf_page',
+                        'value' => $value[1] ? $value[1] : 0,
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_book_page',
+                        'value' => $value[2] ? $value[2] : 0,
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_series_name_vi',
+                        'value' => $value[5],
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_series_name_ja',
+                        'value' => $value[6],
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_content_vi',
+                        'value' => $value[7],
+                        'operator' => '='
+                    ),
+                    array(
+                        'key' => 'backnumber_content_ja',
+                        'value' => $value[8],
+                        'operator' => '='
+                    )
+                )
+            );
+            $check_backnumber = $this->db_get_data($arr, 'row');
 
-            if (empty($id)) {
-                $error .= $i . ', ';
+            if ( !$check_backnumber ) {
+                $id = $this->db_insert($row, 'backnumber');
+
+                if ($id == null) {
+                    $error .= $i . ', ';
+                }
+                $i++;
             }
-
-            $i++;
         }
 
         return $error;
@@ -50,7 +103,7 @@ class Main_Model extends KL_Model
                         'operator' => 'LIKE'
                     );
                     $where[] = $where_item;
-                } else {
+                }else {
                     $where_item = array(
                         'key' => 'backnumber_' . $k,
                         'value' => $v,
@@ -62,13 +115,92 @@ class Main_Model extends KL_Model
         }
 
         $arr = array(
-            'select' => '*, GROUP_CONCAT(distinct backnumber_pdf_page) as group_pdf_page,GROUP_CONCAT(distinct backnumber_book_page) as group_book_page',
-            'from' => 'backnumber',
+            'table' => 'backnumber',
             'where' => $where,
-            'group_by' => 'backnumber_category_id,backnumber_vol_id,backnumber_content_ja,backnumber_content_vi,backnumber_series_name_vi,backnumber_series_name_ja',
-            'order_by' => 'backnumber_id ASC'
+            'order_by' => 'backnumber_vol_id DESC, backnumber_pdf_page ASC'
         );
 
-        return $this->db_get_all($arr);
+        return $this->db_get_data($arr);
+    }
+
+    public function renderItem($row = array(), $vol = array(), $category = array(), $i = null) {
+        $html = '<tr>';
+        $html .= '<td class="text-center">' . $i . '</td>';
+        $html .= '<td class="text-center">' . $row['backnumber_vol_id'] . '</td>';
+        $html .= '<td class="text-center">' . $row['group_pdf_page'] . '</td>';
+        $html .= '<td class="text-center">' . $row['group_book_page'] . '</td>';
+
+        $html .= '<td>' . $category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE] . '</td>';
+        $html .= '<td>' . stripslashes($row['backnumber_series_name_' . LANGUAGE_CODE]) . '</td>';
+        $html .= '<td>' . stripslashes($row['backnumber_content_' . LANGUAGE_CODE]) . '</td>';
+
+        $html .= '<td>';
+        if ($row['backnumber_image']) {
+            $img_path_parts = pathinfo($row['backnumber_image']);
+            $url = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '.' . $img_path_parts['extension'];
+            $url_thumb = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '-thumb.' . $img_path_parts['extension'];
+            $url_thumb = IMAGICK ? $url_thumb : $url;
+            $text_translate = _pll('Vol') . ',' . _pll('PDF Page') . ',' . _pll('Book Page'). ',' . _pll('Download this page'). ',' . _pll('Download all pages');
+
+            $html .= '<a href="#showPdfModal" data-texts=" ' . $text_translate . ' " data-images="' . implode(",", $row['image_arr']) . '" data-vol="' . str_replace('data/uploads/','',$vol[$row['backnumber_vol_id']]['vol_pdf']) . '" data-vol-id="' . $row['backnumber_vol_id'] . '" data-pdf-page="' . $row['group_pdf_page'] . '" data-book-page="' . $row['group_book_page'] . '" class="show-pdf" data-toggle="modal">';
+            $html .= '<img width="75" src="/' . $url_thumb . '" alt="' . $img_path_parts['basename'] . '">';
+            $html .= '</a>';
+        }
+        // $html .= '</td>';
+
+        // $html .= '<td class="text-center">';
+        // if ($vol[$row['backnumber_vol_id']]['vol_pdf']) {
+        //     $html .= '<a href="/admin/pdf.php?q=' . str_replace('data/uploads/','',$vol[$row['backnumber_vol_id']]['vol_pdf']) . '#page=' . $row['backnumber_pdf_page'] . '" target="_blank" title="">';
+        //     $html .= '<i class="far fa-file-pdf text-danger"></i></a>';
+        // }
+        $html .= '</td></tr>';
+
+        return $html;
+    }
+
+    public function renderList($data = array(), $vol = array(), $category = array()) {
+        $html = '';
+        $data_concat = array();
+        $index = 1;
+
+        for ($i=0; $i < count($data); $i++) {
+            $data_concat[$i] = $data[$i];
+            $image_arr = array();
+            $image_arr[] = $data_concat[$i]['backnumber_image'];
+            $j = $i+1;
+            $flag = 1;
+            while ( $flag > 0 ) {
+                if ( isset($data_concat) &&  isset($data[$j]['backnumber_vol_id']) &&
+                    $data_concat[$i]['backnumber_vol_id'] == $data[$j]['backnumber_vol_id'] &&
+                    $data_concat[$i]['backnumber_category_id'] == $data[$j]['backnumber_category_id'] &&
+                    $data_concat[$i]['backnumber_content_vi'] == $data[$j]['backnumber_content_vi'] &&
+                    $data_concat[$i]['backnumber_series_name_vi'] == $data[$j]['backnumber_series_name_vi'] &&
+                    $data_concat[$i]['backnumber_content_ja'] == $data[$j]['backnumber_content_ja'] &&
+                    $data_concat[$i]['backnumber_series_name_ja'] == $data[$j]['backnumber_series_name_ja'] &&
+                    $data[$j-1]['backnumber_pdf_page'] == ($data[$j]['backnumber_pdf_page'] - 1) ) {
+
+                    $image_arr[] = $data[$j]['backnumber_image'];
+                    $j++;
+                } else {
+                    $flag = 0;
+                    if ( $j-1 > $i ) {
+                        $data_concat[$i]['group_pdf_page'] = $data_concat[$i]['backnumber_pdf_page'] . '~' . $data[$j-1]['backnumber_pdf_page'];
+                        $data_concat[$i]['group_book_page'] = $data_concat[$i]['backnumber_book_page'] . '~' . $data[$j-1]['backnumber_book_page'];
+                        $data_concat[$i]['image_arr'] = $image_arr;
+                        $html .= $this->renderItem($data_concat[$i], $vol, $category, $index);
+                        $index++;
+                        $i = $j-1;
+                    } else {
+                        $data_concat[$i]['group_pdf_page'] = $data_concat[$i]['backnumber_pdf_page'];
+                        $data_concat[$i]['group_book_page'] = $data_concat[$i]['backnumber_book_page'];
+                        $data_concat[$i]['image_arr'] = $image_arr;
+                        $html .= $this->renderItem($data_concat[$i], $vol, $category, $index);
+                        $index++;
+                    }
+                }
+            }
+        }
+
+        return $html;
     }
 }

@@ -1,62 +1,91 @@
-<?php if ( ! defined('PATH_SYSTEM')) die ('Bad requested!');
+<?php if (!defined('PATH_SYSTEM')) die('Bad requested!');
 
 class Backnumber_Controller extends Base_Controller
 {
     public function indexAction()
     {
-        $this->model->load('vol');
-        $vol_model = new Vol_Model();
-        $vol_list = $vol_model->shortVol();
-
-        foreach ($vol_list as $value) {
-            $data['vol'][$value['vol_number']] = $value;
+        // Get vol
+        $data_vol = get_cache('vol');
+        if ($data_vol) {
+            foreach ($data_vol as $value) {
+                $data['vol'][$value['vol_number']] = $value;
+            }
         }
 
-        $this->model->load('category');
-        $ct_model = new Category_Model();
-        $category_list = $ct_model->shortCate();
-
-        foreach ($category_list as $value) {
-            $data['category'][$value['category_id']] = $value;
+        // Get category
+        $data_category = get_cache('category');
+        if ($data_category) {
+            foreach ($data_category as $value) {
+                $data['category'][$value['category_id']] = $value;
+            }
         }
 
-        $this->model->load('backnumber');
-        $bn_model = new Backnumber_Model();
-        $data['backnumber'] = $bn_model->all();
+        // Get backnumber
+        $data_cache_backnumber = get_cache('backnumber_' . LANGUAGE_CODE);
 
+        if ($data_cache_backnumber == false) {
+            $this->model->load('backnumber');
+            $bn_model = new Backnumber_Model();
+
+            $arr = array(
+                'table' => 'backnumber',
+                'order_by'  => 'backnumber_vol_id DESC, backnumber_pdf_page ASC',
+            );
+
+            $data_backnumber = $bn_model->db_get_data($arr);
+            $data['backnumber_html'] = $bn_model->renderList($data_backnumber, $data['vol'], $data['category']);
+            $bn_model->db_close();
+
+            set_cache('backnumber_' . LANGUAGE_CODE, $data['backnumber_html']);
+        } else {
+            $data['backnumber_html'] = $data_cache_backnumber;
+        }
+
+        // Render html
         $this->load_header();
         $this->load_top_bar();
         $this->view->load('backnumber/index', $data);
         $this->load_footer();
-        $bn_model->db_close();
     }
 
     public function addAction()
     {
-        $this->model->load('backnumber');
-        $model = new Backnumber_Model();
+        if ($_SESSION['permission'] != 1) {
+            die('You don\'t have permission to access this page!');
+        }
+
         $data = $_POST;
 
-        if ( $data ) {
+        if ($data) {
+            $this->model->load('backnumber');
+            $model = new Backnumber_Model();
             $error = $model->add($data);
+            $model->db_close();
 
-            if ( !$error ) {
-                $model->db_close();
-                header('Location: /admin/backnumber/');
+            if (!$error) {
+                delete_cache('backnumber_vi');
+                delete_cache('backnumber_ja');
+                delete_cache('backnumber_main_vi');
+                delete_cache('backnumber_main_ja');
+
+                header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
                 exit;
             }
         }
 
         echo 'Error!!!';
-        $model->db_close();
     }
 
     public function editAction()
     {
+        if ($_SESSION['permission'] != 1) {
+            die('You don\'t have permission to access this page!');
+        }
+
         $id = $_GET['id'];
 
         if (!$id) {
-            header('Location: /admin/backnumber/');
+            header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;
         }
 
@@ -66,85 +95,115 @@ class Backnumber_Controller extends Base_Controller
 
         if ($dataPost) {
             $error = $model->edit($id, $dataPost);
+            $model->db_close();
 
             if (!$error) {
-                $model->db_close();
-                header('Location: /admin/backnumber/');
+                delete_cache('backnumber_vi');
+                delete_cache('backnumber_ja');
+                delete_cache('backnumber_main_vi');
+                delete_cache('backnumber_main_ja');
+
+                header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
                 exit;
             }
 
             $data['error'] = 'Update error, Please check input data';
         }
 
-        $this->model->load('vol');
-        $vol_model = new Vol_Model();
-        $vol_list = $vol_model->shortVol();
+        // Get row Backnumber
+        $arr = array(
+            'table' => 'backnumber',
+            'where' => array(
+                array(
+                    'key' => 'backnumber_id',
+                    'value' => $id,
+                    'operator' => '='
+                )
+            )
+        );
+        $data['backnumber'] = $model->db_get_data($arr, 'row');
+        $model->db_close();
 
-        foreach ($vol_list as $value) {
+        // Get vol
+        $data_vol = get_cache('vol');
+
+        foreach ($data_vol as $value) {
             $data['vol'][$value['vol_number']] = $value;
         }
 
-        $this->model->load('category');
-        $ct_model = new Category_Model();
-        $category_list = $ct_model->shortCate();
+        // Get category
+        $data_category = get_cache('category');
 
-        foreach ($category_list as $value) {
+        foreach ($data_category as $value) {
             $data['category'][$value['category_id']] = $value;
         }
 
+        // Render html
         $this->load_header();
         $this->load_top_bar();
-
-        $data['backnumber'] = $model->getRowById($id);
         $this->view->load('backnumber/edit', $data);
-
         $this->load_footer();
-        $model->db_close();
     }
 
     public function deleteAction()
     {
+        if ($_SESSION['permission'] != 1) {
+            die('You don\'t have permission to access this page!');
+        }
+
         $id = $_GET['id'];
 
         if (!$id) {
-            header('Location: /admin/backnumber/');
+            header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;
         }
 
         $this->model->load('backnumber');
         $model = new Backnumber_Model();
         $error = $model->delete($id);
+        $model->db_close();
 
-        if ( !$error ) {
-            $model->db_close();
-            header('Location: /admin/backnumber/');
+        if (!$error) {
+            delete_cache('backnumber_vi');
+            delete_cache('backnumber_ja');
+            delete_cache('backnumber_main_vi');
+            delete_cache('backnumber_main_ja');
+
+            header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;
         }
 
         echo 'Error!!!';
-        $model->db_close();
     }
 
     public function deleteItemsAction()
     {
+        if ($_SESSION['permission'] != 1) {
+            die('You don\'t have permission to access this page!');
+        }
+
         $arr = isset($_GET['arr']) ? $_GET['arr'] : array();
 
         if (!$arr) {
-            header('Location: /admin/backnumber/');
+            header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;
         }
 
         $this->model->load('backnumber');
         $model = new Backnumber_Model();
         $error = $model->deleteAll($arr);
+        $model->db_close();
 
-        if ( !$error ) {
-            $model->db_close();
-            header('Location: /admin/backnumber/');
+        if (!$error) {
+            delete_cache('backnumber_vi');
+            delete_cache('backnumber_ja');
+            delete_cache('backnumber_main_vi');
+            delete_cache('backnumber_main_ja');
+
+            header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;
         }
 
         echo 'Error!!!';
-        $model->db_close();
     }
 }
