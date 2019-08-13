@@ -62,7 +62,6 @@ $(document).ready(function () {
         htmlFooter += '<a' + ( multiImage ? ' class="download-all" href="#"' : '' ) + ' style="margin-right: 20px;"' + ( !multiImage ? ' ' + imgdownload : '' ) + '>';
         htmlFooter += '<i class="fas fa-cloud-download-alt text-primary"></i>';
         htmlFooter += '</a>';
-        pdfLink = '/admin/pdf.php?q=' + $(this).attr('data-vol') + '#page=';
         htmlFooter += '<a class="pdf-link" href="/admin/pdf.php?q=' + $(this).attr('data-vol') + '#page=' + pdfPage[0] + '" target="_blank"><i class="far fa-file-pdf text-danger"></i></a>';
         htmlFooter += '</div>';
         htmlFooter += '<div class="d-none" id="img-download">';
@@ -73,6 +72,8 @@ $(document).ready(function () {
 
         modalBody.removeClass('loadding').html(htmlBody);
         modalFooter.html(htmlFooter);
+
+        pdfLink = '/admin/pdf.php?q=' + $(this).attr('data-vol') + '#page=';
 
         $('#pdf-slide').bind('slide.bs.carousel', function (e) {
             if ( e.direction == 'left' ) {

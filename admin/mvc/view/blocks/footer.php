@@ -48,7 +48,10 @@
 <!-- Select2 JavaScript-->
 <script src="/assets/vendor/select2/select2.min.js"></script>
 
-<!-- Select2 BigUpload-->
+<!-- dropzone -->
+<script src="/assets/vendor/dropzone/dist/min/dropzone.min.js"></script>
+
+<!-- BigUpload-->
 <script src="/vendor/BigUpload/js/main.js"></script>
 <script type="text/javascript" charset="utf-8">
     bigUpload = new bigUpload();

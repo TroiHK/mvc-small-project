@@ -6,7 +6,6 @@ class Main_Controller extends Base_Controller
     {
         // Get vol
         $data_vol = get_cache('vol');
-
         if ($data_vol) {
             foreach ($data_vol as $value) {
                 $data['vol'][$value['vol_number']] = $value;
@@ -82,12 +81,11 @@ class Main_Controller extends Base_Controller
                 if ($Spreadsheet) {
                     $error = $model->import($Spreadsheet);
                     $model->db_close();
-
+                    delete_cache('backnumber_vi');
+                    delete_cache('backnumber_ja');
+                    delete_cache('backnumber_main_vi');
+                    delete_cache('backnumber_main_ja');
                     if (empty($error)) {
-                        delete_cache('backnumber_vi');
-                        delete_cache('backnumber_ja');
-                        delete_cache('backnumber_main_vi');
-                        delete_cache('backnumber_main_ja');
                         header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
                         exit;
                     }

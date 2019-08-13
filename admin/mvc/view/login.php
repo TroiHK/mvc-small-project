@@ -18,7 +18,7 @@
             <?php } ?>
 
             <div class="form-label-group">
-              <input type="text" id="inputUser" name="username" class="form-control" placeholder="UserName" required autofocus>
+              <input type="text" id="inputUser" name="username" class="form-control" placeholder="User name" required autofocus>
               <label for="inputUser">User name</label>
             </div>
 

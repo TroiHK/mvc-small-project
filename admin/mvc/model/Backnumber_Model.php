@@ -179,4 +179,55 @@ class Backnumber_Model extends KL_Model
             $img->destroy();
         }
     }
+
+    public function all($data)
+    {
+        $where = array(
+            'relation' => 'AND',
+        );
+
+        if ($data) {
+            foreach ($data as $k => $v) {
+                if ($k == 'lang' || empty($v)) continue;
+
+                if ($k == 'series_name' || $k == 'content') {
+                    $where_item = array(
+                        'key' => 'backnumber_' . $k . '_' . $data['lang'],
+                        'value' => '%' . $v . '%',
+                        'operator' => 'LIKE'
+                    );
+                    $where[] = $where_item;
+                } else {
+                    $where_item = array(
+                        'key' => 'backnumber_' . $k,
+                        'value' => is_array($v) ? join("','",$v) : $v,
+                        'operator' => is_array($v) ? 'IN' : '='
+                    );
+                    $where[] = $where_item;
+                }
+            }
+        }
+
+        if ( count($where) <= 1 ) {
+            $sql = "SELECT MAX(backnumber_vol_id) as value FROM backnumber";
+            $max_vol = $this->db_get_row($sql);
+
+            if ( $max_vol['value']*1 > 10 ) {
+                $where_item = array(
+                    'key' => 'backnumber_vol_id',
+                    'value' => $max_vol['value']*1 - 10,
+                    'operator' => '>'
+                );
+                $where[] = $where_item;
+            }
+        }
+
+        $arr = array(
+            'table' => 'backnumber',
+            'where' => $where,
+            'order_by' => 'backnumber_vol_id DESC, backnumber_pdf_page ASC'
+        );
+
+        return $this->db_get_data($arr);
+    }
 }

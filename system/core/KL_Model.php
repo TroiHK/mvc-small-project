@@ -249,7 +249,12 @@ class KL_Model
                 $conditions .= ')' . $relation;
             } else {
                 $operator = isset($v_lv1['operator']) ? $v_lv1['operator'] : '=';
-                $conditions .= $v_lv1['key'] . " " . $operator . " '" . addslashes($v_lv1['value']) . "'" . $relation;
+                if ( $operator === 'IN' ) {
+                    if ( !empty($v_lv1['value']) )
+                        $conditions .= $v_lv1['key'] . " " . $operator . " ('" . $v_lv1['value'] . "')" . $relation;
+                } else {
+                    $conditions .= $v_lv1['key'] . " " . $operator . " '" . addslashes($v_lv1['value']) . "'" . $relation;
+                }
             }
         }
 

@@ -19,6 +19,9 @@
     <link href="/assets/vendor/select2/select2.min.css" rel="stylesheet">
     <link href="/vendor/BigUpload/style.css" rel="stylesheet">
 
+    <!-- dropzone -->
+    <link href="/assets/vendor/dropzone/dist/min/dropzone.min.css" rel="stylesheet">
+
     <!-- Custom styles for this template -->
     <link href="/assets/css/sb-admin-2.css" rel="stylesheet">
 

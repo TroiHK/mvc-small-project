@@ -150,6 +150,28 @@
 
     <?php if ($_SESSION['permission'] == 1 && IMAGICK) { ?>
       <div class="card mb-4">
+        <div class="card-header p-0" id="headingUploadVolImage">
+          <h5 class="mb-0">
+            <button type="button" class="btn p-3  w-100 text-left text-uppercase" data-toggle="collapse" data-target="#collapseploadVolImage" aria-expanded="true" aria-controls="collapseploadVolImage">
+              Vol Images Upload
+            </button>
+          </h5>
+        </div>
+        <div id="collapseploadVolImage" class="collapse show" aria-labelledby="headingploadVolImage">
+          <div class="card-body">
+            <form action="/admin/helper/?lang=<?php echo LANGUAGE_CODE ?>&action=vol_images" class="dropzone dz-clickable" id="my-dropzone">
+              <div class="dz-message d-flex flex-column">
+                <i class="material-icons text-muted">cloud_upload</i>
+                Drag &amp; Drop here or click
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    <?php } ?>
+
+    <?php if ($_SESSION['permission'] == 1 && IMAGICK) { ?>
+      <div class="card mb-4">
         <div class="card-header p-0" id="headingTranslate">
           <h5 class="mb-0">
             <button type="button" class="btn p-3  w-100 text-left text-uppercase" data-toggle="collapse" data-target="#collapseImgO" aria-expanded="true" aria-controls="collapseImgO">

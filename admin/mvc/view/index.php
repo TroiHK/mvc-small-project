@@ -14,10 +14,15 @@
                 <div class="form-group row ">
                   <label for="staticEmail" class="col-md-3 col-form-label"><?php echo _pll('Vol'); ?>:</label>
                   <div class="col-md-9 text-left">
-                    <select class="form-control rounded-0 select2" name="vol_id">
-                      <option value=''><?php echo _pll('All'); ?></option>
+                    <select class="form-control rounded-0 select2" name="vol_id[]" multiple>
+                      <?php 
+                      $select = isset($vol_id) ? $vol_id : array(); 
+                      $all_select = isset($vol_id) && in_array('', $select) ? " selected" : "";
+                      ?>
+                      <option value=''<?php echo $all_select ?>><?php echo _pll('All'); ?></option>
                       <?php foreach ($vol as $value) { ?>
-                        <option value='<?php echo $value['vol_number'] ?>' <?php echo $vol_id == $value['vol_number'] ? " selected" : "" ?>><?php echo $value['vol_name'] ?></option>
+                        <?php $option_select = in_array($value['vol_number'], $select) ? " selected" : ""; ?>
+                        <option value='<?php echo $value['vol_number'] ?>' <?php echo $option_select ?>><?php echo $value['vol_name'] ?></option>
                       <?php } ?>
                     </select>
                   </div>

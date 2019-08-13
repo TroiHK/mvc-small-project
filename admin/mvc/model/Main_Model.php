@@ -14,6 +14,7 @@ class Main_Model extends KL_Model
 
             $row = array(
                 'backnumber_vol_id' => $value[0],
+                'backnumber_image' => $value[9] ? PATH_UPLOADS . '/vol/images/pdf/' . $value[9] : NULL,
                 'backnumber_category_id' => $value[3],
                 'backnumber_pdf_page' => $value[1] ? $value[1] : 0,
                 'backnumber_book_page' => $value[2] ? $value[2] : 0,
@@ -95,7 +96,8 @@ class Main_Model extends KL_Model
 
         if ($data) {
             foreach ($data as $k => $v) {
-                if ($k == 'lang' || $v == '') continue;
+                if ($k == 'lang' || empty($v)) continue;
+
                 if ($k == 'series_name' || $k == 'content') {
                     $where_item = array(
                         'key' => 'backnumber_' . $k . '_' . $data['lang'],
@@ -103,14 +105,28 @@ class Main_Model extends KL_Model
                         'operator' => 'LIKE'
                     );
                     $where[] = $where_item;
-                }else {
+                } else {
                     $where_item = array(
                         'key' => 'backnumber_' . $k,
-                        'value' => $v,
-                        'operator' => '='
+                        'value' => is_array($v) ? join("','",$v) : $v,
+                        'operator' => is_array($v) ? 'IN' : '='
                     );
                     $where[] = $where_item;
                 }
+            }
+        }
+
+        if ( count($where) <= 1 ) {
+            $sql = "SELECT MAX(backnumber_vol_id) as value FROM backnumber";
+            $max_vol = $this->db_get_row($sql);
+
+            if ( $max_vol['value']*1 > 10 ) {
+                $where_item = array(
+                    'key' => 'backnumber_vol_id',
+                    'value' => $max_vol['value']*1 - 10,
+                    'operator' => '>'
+                );
+                $where[] = $where_item;
             }
         }
 

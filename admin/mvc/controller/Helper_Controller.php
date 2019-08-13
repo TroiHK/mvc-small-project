@@ -76,4 +76,21 @@ class Helper_Controller extends Base_Controller
             exit;
         }
     }
+
+    public function vol_imagesAction()
+    {
+        $ds = $_SERVER['DOCUMENT_ROOT'] . '/' . PATH_UPLOADS;  //1
+        $storeFolder = '/vol/images/pdf/';   //2
+         
+        if (!empty($_FILES)) {
+            $tempFile = $_FILES['file']['tmp_name'];          //3           
+            $targetPath = $ds . $storeFolder;  //4
+            $targetFile =  $targetPath . $_FILES['file']['name'];  //5
+
+            if (file_exists($targetFile)) {
+                unlink($targetFile);
+            }
+            move_uploaded_file($tempFile, $targetFile); //6
+        }
+    }
 }

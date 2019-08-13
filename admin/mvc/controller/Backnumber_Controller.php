@@ -23,23 +23,27 @@ class Backnumber_Controller extends Base_Controller
         // Get backnumber
         $data_cache_backnumber = get_cache('backnumber_' . LANGUAGE_CODE);
 
-        if ($data_cache_backnumber == false) {
+        if ($data_cache_backnumber == false || count($_GET) > 1) {
             $this->model->load('backnumber');
             $bn_model = new Backnumber_Model();
-
-            $arr = array(
-                'table' => 'backnumber',
-                'order_by'  => 'backnumber_vol_id DESC, backnumber_pdf_page ASC',
-            );
-
-            $data_backnumber = $bn_model->db_get_data($arr);
+            $data_backnumber = $bn_model->all($_GET);
             $data['backnumber_html'] = $bn_model->renderList($data_backnumber, $data['vol'], $data['category']);
             $bn_model->db_close();
 
-            set_cache('backnumber_' . LANGUAGE_CODE, $data['backnumber_html']);
+            if (empty($data_cache_backnumber) && ((count($_GET) == 0) || (isset($_GET['lang']) && count($_GET) == 1))) {
+                set_cache('backnumber_' . LANGUAGE_CODE, $data['backnumber_html']);
+            }
         } else {
             $data['backnumber_html'] = $data_cache_backnumber;
         }
+
+        // Set $_GET variable
+        $data['vol_id'] = isset($_GET['vol_id']) ? $_GET['vol_id'] : -1;
+        $data['pdf_page'] = isset($_GET['pdf_page']) ? $_GET['pdf_page'] : "";
+        $data['book_page'] = isset($_GET['book_page']) ? $_GET['book_page'] : "";
+        $data['category_id'] = isset($_GET['category_id']) ? $_GET['category_id'] : -1;
+        $data['content'] = isset($_GET['content']) ? $_GET['content'] : "";
+        $data['series_name'] = isset($_GET['series_name']) ? $_GET['series_name'] : "";
 
         // Render html
         $this->load_header();
