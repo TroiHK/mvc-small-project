@@ -116,7 +116,7 @@
 
               <div class="table-responsive">
                 <?php if ($data['language']) { ?>
-                  <table class="table table-bordered dataTable-nosearchlenght" width="100%" cellspacing="0">
+                  <table class="table table-bordered" width="100%" cellspacing="0">
                     <thead>
                       <tr>
                         <th class="nosort not-first-child">String</th>
@@ -133,11 +133,11 @@
                     </tfoot>
                     <tbody>
                       <?php foreach ($data['language'] as $k => $v) {
-                        printf('<tr><td>%1$s</td><td><input type="text" name="language[%2$s][vi]" value="%3$s" class="form-control" /></td><td><input type="text" name="language[%2$s][ja]" value="%4$s" class="form-control" /></td></tr>', base64_decode($k) , $k, isset($v['vi']) && !empty($v['vi']) ? $v['vi'] : base64_decode($k), isset($v['ja']) && !empty($v['ja']) ? $v['ja'] : base64_decode($k) );
+                        printf('<tr><td style="vertical-align: middle">%1$s</td><td style="vertical-align: middle"><input type="text" name="language[%2$s][vi]" value="%3$s" class="form-control" /></td><td style="vertical-align: middle"><input type="text" name="language[%2$s][ja]" value="%4$s" class="form-control" /></td></tr>', base64_decode($k) , $k, isset($v['vi']) && !empty($v['vi']) ? $v['vi'] : base64_decode($k), isset($v['ja']) && !empty($v['ja']) ? $v['ja'] : base64_decode($k) );
                       } ?>
                     </tbody>
                   </table>
-                  <button class="btn btn-primary border mt-4 float-right">Save</button>
+                  <button class="btn btn-primary border float-right">Save</button>
                 <?php } else {
                   printf('<p class="text-danger text-center mb-0" style="font-size: 1.5rem;">No data</p>');
                 } ?>
@@ -233,7 +233,7 @@
       $(this).attr('download', img_name);
     });
 
-    var __PDF_DOC,
+   <?php /* var __PDF_DOC,
       __CURRENT_PAGE,
       __TOTAL_PAGES,
       __PAGE_RENDERING_IN_PROGRESS = 0,
@@ -341,5 +341,6 @@
       if (__CURRENT_PAGE != __TOTAL_PAGES)
         showPage(++__CURRENT_PAGE);
     });
+    */ ?>
   </script>
 </div>

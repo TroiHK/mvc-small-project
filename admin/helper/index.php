@@ -2,6 +2,9 @@
 // Load config
 include_once realpath(dirname(__FILE__) . '/..') . '/admin_path.php';
 
+// Check IP login
+check_ip_login();
+
 // check login
 if(!isset($_SESSION["user_id"])){
   header('Location: /admin/login/');

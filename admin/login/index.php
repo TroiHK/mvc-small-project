@@ -3,6 +3,9 @@
 // Load config
 include_once realpath(dirname(__FILE__) . '/..') . '/admin_path.php';
 
+// Check IP login
+check_ip_login();
+
 // Mở file KL_Common.php, file này chứa hàm KL_Load() chạy hệ thống
 include_once PATH_SYSTEM . '/core/KL_Common.php';
 

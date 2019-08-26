@@ -8,7 +8,6 @@
           <div class="col-sm-6">
             <h2 class="m-0">Setting</h2>
           </div>
-
         </div>
       </div>
     </div>
@@ -57,5 +56,36 @@
       </form>
     </div>
   </div>
+
+  <?php if ( $_SESSION["permission"] == 1 ) { ?>
+    <div class="card shadow mb-4 mt-4 custom-table">
+      <div class="card-header p-0">
+        <div class="table-title">
+          <div class="row">
+            <div class="col-sm-6">
+              <h2 class="m-0">Setting IP</h2>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" action="/admin/setting/?lang=<?php echo LANGUAGE_CODE ?>&action=ip_range">
+          <div class="row">
+            <div class="col-md-6 col-xl-4">
+              <div class="form-group row">
+                <label for="name-vi" class="col-xl-4 col-sm-4 col-form-label">IP List</label>
+                <div class="col-xl-8 col-sm-8">
+                  <input type="text" name="ip_range" placeholder="x.x.x.x, x.x.x.x/24" class="form-control" value="<?= isset($ip_range) ? $ip_range : '' ?>">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary border float-right">Update</button>
+        </form>
+      </div>
+    </div>
+  <?php } ?>
 </div>
 <!-- /.container-fluid -->

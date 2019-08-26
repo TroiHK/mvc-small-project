@@ -21,26 +21,29 @@
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
 
-
-        <!-- Nav Item - User Information -->
-        <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline small" style="text-transform: capitalize; color: #000;"><?php echo $_SESSION['fullname']; ?></span>
-                <i class="fas fa-user-circle text-dark" style="font-size: 26px;"></i>
-            </a>
-            <!-- Dropdown - User Information -->
-            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="/admin/user/?lang=<?php echo LANGUAGE_CODE ?>&action=edit&id=<?php echo $_SESSION['user_id']; ?>">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    <?php echo _pll('Profile'); ?>
+        <?php if ( isset($_SESSION["user_id"]) && $_SESSION["user_id"] != "ip_account" ) { ?>
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline small" style="text-transform: capitalize; color: #000;"><?php echo $_SESSION['fullname']; ?></span>
+                    <i class="fas fa-user-circle text-dark" style="font-size: 26px;"></i>
                 </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                    <?php echo _pll('Logout'); ?>
-                </a>
-            </div>
-        </li>
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="/admin/user/?lang=<?php echo LANGUAGE_CODE ?>&action=edit&id=<?php echo $_SESSION['user_id']; ?>">
+                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <?php echo _pll('Profile'); ?>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <?php echo _pll('Logout'); ?>
+                    </a>
+                </div>
+            </li>
+        <?php } else { ?> 
+            <li class="nav-item"><a href="/admin/login/?lang=<?php echo LANGUAGE_CODE ?>"  class="nav-link"><?php echo _pll('Login'); ?> <i style="margin-left: 5px;" class="fas fa-sign-in-alt"></i></a></li>
+        <?php } ?>
 
     </ul>
 

@@ -2,7 +2,7 @@
 
 class Main_Model extends KL_Model
 {
-    public function import($data)
+    public function import($data, $update_img = false)
     {
         $error = '';
         $i = 2;
@@ -11,10 +11,12 @@ class Main_Model extends KL_Model
         foreach ($data as $key => $value) {
             if ($value[0] == 'Vol') continue;
             $id = 0;
+            $pdf_path = PATH_UPLOADS . '/vol/images/pdf/';
+            $img_url = $value[9] ? $pdf_path . $value[9] : $pdf_path . 'vol_' . $value[0] . '_' . ($value[1] ? $value[1] : 0) . '.jpg';
 
             $row = array(
                 'backnumber_vol_id' => $value[0],
-                'backnumber_image' => $value[9] ? PATH_UPLOADS . '/vol/images/pdf/' . $value[9] : NULL,
+                'backnumber_image' => $img_url,
                 'backnumber_category_id' => $value[3],
                 'backnumber_pdf_page' => $value[1] ? $value[1] : 0,
                 'backnumber_book_page' => $value[2] ? $value[2] : 0,
@@ -82,6 +84,22 @@ class Main_Model extends KL_Model
                     $error .= $i . ', ';
                 }
                 $i++;
+            } else {
+                if ( $update_img && $img_url ) {
+                    $ud_row = array(
+                        'backnumber_image' =>  $img_url,
+                    );
+
+                    $ud_where = array(
+                        array(
+                            'key' => 'backnumber_id',
+                            'value' => $check_backnumber['backnumber_id'],
+                            'operator' => '='
+                        )
+                    );
+
+                    $status = $this->db_update($ud_row, 'backnumber', $ud_where);
+                }
             }
         }
 
@@ -146,7 +164,12 @@ class Main_Model extends KL_Model
         $html .= '<td class="text-center">' . $row['group_pdf_page'] . '</td>';
         $html .= '<td class="text-center">' . $row['group_book_page'] . '</td>';
 
-        $html .= '<td>' . $category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE] . '</td>';
+        if ( isset($category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE]) ) {
+            $html .= '<td>' . $category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE] . '</td>';
+        } else {
+            $html .= '<td></td>';
+        }
+        
         $html .= '<td>' . stripslashes($row['backnumber_series_name_' . LANGUAGE_CODE]) . '</td>';
         $html .= '<td>' . stripslashes($row['backnumber_content_' . LANGUAGE_CODE]) . '</td>';
 

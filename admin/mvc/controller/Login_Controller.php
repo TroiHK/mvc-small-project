@@ -4,7 +4,7 @@ class Login_Controller extends Base_Controller
 {
     public function indexAction()
     {
-        if ( isset($_SESSION["user_id"]) ) {
+        if ( isset($_SESSION["user_id"]) && $_SESSION["user_id"] != "ip_account" ) {
             header('Location: /admin/?lang='.LANGUAGE_CODE);
             exit;
         }

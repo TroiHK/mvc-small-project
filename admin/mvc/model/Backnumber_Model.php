@@ -114,7 +114,12 @@ class Backnumber_Model extends KL_Model
         $html .= '<td class="text-center">' . $row['backnumber_pdf_page'] . '</td>';
         $html .= '<td class="text-center">' . $row['backnumber_book_page'] . '</td>';
 
-        $html .= '<td>' . $category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE] . '</td>';
+        if ( isset($category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE]) ) {
+            $html .= '<td>' . $category[$row['backnumber_category_id']]['category_name_' . LANGUAGE_CODE] . '</td>';
+        } else {
+            $html .= '<td></td>';
+        }
+
         $html .= '<td>' . stripslashes($row['backnumber_series_name_' . LANGUAGE_CODE]) . '</td>';
         $html .= '<td>' . stripslashes($row['backnumber_content_' . LANGUAGE_CODE]) . '</td>';
         $html .= '<td>';
@@ -123,7 +128,7 @@ class Backnumber_Model extends KL_Model
             $url = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '.' . $img_path_parts['extension'];
             $url_thumb = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '-thumb.' . $img_path_parts['extension'];
             $url_thumb = IMAGICK ? $url_thumb : $url;
-            $html .= '<img width="75" src="/' . $url_thumb . '" alt="' . $path_parts['basename'] . '">';
+            $html .= '<img width="75" src="/' . $url_thumb . '" alt="' . $img_path_parts['basename'] . '">';
         }
         $html .= '</td>';
 
@@ -133,10 +138,14 @@ class Backnumber_Model extends KL_Model
         }
         $html .= '</td>';
 
-        $html .= '<td class="text-center">';
-        $html .= '<a href="/admin/backnumber/?lang=' . LANGUAGE_CODE . '&action=edit&id=' . $row['backnumber_id'] . '" class="edit edit-item"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>';
-        $html .= '<a href="#deleteBnModal" data-href="/admin/backnumber/?lang=' . LANGUAGE_CODE . '&action=delete&id=' . $row['backnumber_id'] . '" class="delete delete-item" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>';
-        $html .= '</td></tr>';
+        if ($_SESSION["permission"] == 1) {
+            $html .= '<td class="text-center">';
+            $html .= '<a href="/admin/backnumber/?lang=' . LANGUAGE_CODE . '&action=edit&id=' . $row['backnumber_id'] . '" class="edit edit-item"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>';
+            $html .= '<a href="#deleteBnModal" data-href="/admin/backnumber/?lang=' . LANGUAGE_CODE . '&action=delete&id=' . $row['backnumber_id'] . '" class="delete delete-item" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>';
+            $html .= '</td>';
+        }
+
+        $html .= '</tr>';
 
         return $html;
     }

@@ -11,6 +11,10 @@
             <label>Choose XLSX File</label>
             <input type="file" name="file" id="file" accept=".xlsx" required>
           </div>
+          <div class="form-group">
+            <label>Update Images</label>
+            <input type="checkbox" name="update_img">
+          </div>
         </div>
         <div class="modal-footer">
           <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">

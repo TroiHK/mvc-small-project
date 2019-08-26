@@ -21,21 +21,21 @@ class Main_Controller extends Base_Controller
         }
 
         // Get Backnumber html
-        $data_cache_backnumber = get_cache('backnumber_main_' . LANGUAGE_CODE);
+        $data_cache_backnumber = get_cache('backnumber_main');
 
+        $this->model->load('main');
+        $main_model = new Main_Model();
         if (empty($data_cache_backnumber) || count($_GET) > 1) {
-            $this->model->load('main');
-            $main_model = new Main_Model();
             $data_backnumber = $main_model->all($_GET);
             $data['backnumber_html'] = $main_model->renderList($data_backnumber, $data['vol'], $data['category']);
-            $main_model->db_close();
 
             if (empty($data_cache_backnumber) && ((count($_GET) == 0) || (isset($_GET['lang']) && count($_GET) == 1))) {
-                set_cache('backnumber_main_' . LANGUAGE_CODE, $data['backnumber_html']);
+                set_cache('backnumber_main', $data_backnumber);
             }
         } else {
-            $data['backnumber_html'] = $data_cache_backnumber;
+            $data['backnumber_html'] = $main_model->renderList($data_cache_backnumber, $data['vol'], $data['category']);
         }
+        $main_model->db_close();
 
         // Set $_GET variable
         $data['vol_id'] = isset($_GET['vol_id']) ? $_GET['vol_id'] : -1;
@@ -79,12 +79,11 @@ class Main_Controller extends Base_Controller
 
                 $error = "";
                 if ($Spreadsheet) {
-                    $error = $model->import($Spreadsheet);
+                    $update_img = isset($_POST['update_img']) && $_POST['update_img'] === "on" ? true : false;
+                    $error = $model->import($Spreadsheet, $update_img);
                     $model->db_close();
-                    delete_cache('backnumber_vi');
-                    delete_cache('backnumber_ja');
-                    delete_cache('backnumber_main_vi');
-                    delete_cache('backnumber_main_ja');
+                    delete_cache('backnumber');
+                    delete_cache('backnumber_main');
                     if (empty($error)) {
                         header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
                         exit;

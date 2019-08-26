@@ -21,21 +21,21 @@ class Backnumber_Controller extends Base_Controller
         }
 
         // Get backnumber
-        $data_cache_backnumber = get_cache('backnumber_' . LANGUAGE_CODE);
+        $data_cache_backnumber = get_cache('backnumber');
 
+        $this->model->load('backnumber');
+        $bn_model = new Backnumber_Model();
         if ($data_cache_backnumber == false || count($_GET) > 1) {
-            $this->model->load('backnumber');
-            $bn_model = new Backnumber_Model();
             $data_backnumber = $bn_model->all($_GET);
             $data['backnumber_html'] = $bn_model->renderList($data_backnumber, $data['vol'], $data['category']);
-            $bn_model->db_close();
 
             if (empty($data_cache_backnumber) && ((count($_GET) == 0) || (isset($_GET['lang']) && count($_GET) == 1))) {
-                set_cache('backnumber_' . LANGUAGE_CODE, $data['backnumber_html']);
+                set_cache('backnumber', $data_backnumber);
             }
         } else {
-            $data['backnumber_html'] = $data_cache_backnumber;
+            $data['backnumber_html'] = $bn_model->renderList($data_cache_backnumber, $data['vol'], $data['category']);
         }
+        $bn_model->db_close();
 
         // Set $_GET variable
         $data['vol_id'] = isset($_GET['vol_id']) ? $_GET['vol_id'] : -1;
@@ -67,10 +67,8 @@ class Backnumber_Controller extends Base_Controller
             $model->db_close();
 
             if (!$error) {
-                delete_cache('backnumber_vi');
-                delete_cache('backnumber_ja');
-                delete_cache('backnumber_main_vi');
-                delete_cache('backnumber_main_ja');
+                delete_cache('backnumber');
+                delete_cache('backnumber_main');
 
                 header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
                 exit;
@@ -102,10 +100,8 @@ class Backnumber_Controller extends Base_Controller
             $model->db_close();
 
             if (!$error) {
-                delete_cache('backnumber_vi');
-                delete_cache('backnumber_ja');
-                delete_cache('backnumber_main_vi');
-                delete_cache('backnumber_main_ja');
+                delete_cache('backnumber');
+                delete_cache('backnumber_main');
 
                 header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
                 exit;
@@ -168,10 +164,8 @@ class Backnumber_Controller extends Base_Controller
         $model->db_close();
 
         if (!$error) {
-            delete_cache('backnumber_vi');
-            delete_cache('backnumber_ja');
-            delete_cache('backnumber_main_vi');
-            delete_cache('backnumber_main_ja');
+            delete_cache('backnumber');
+            delete_cache('backnumber_main');
 
             header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;
@@ -199,10 +193,8 @@ class Backnumber_Controller extends Base_Controller
         $model->db_close();
 
         if (!$error) {
-            delete_cache('backnumber_vi');
-            delete_cache('backnumber_ja');
-            delete_cache('backnumber_main_vi');
-            delete_cache('backnumber_main_ja');
+            delete_cache('backnumber');
+            delete_cache('backnumber_main');
 
             header('Location: /admin/backnumber/?lang=' . LANGUAGE_CODE);
             exit;

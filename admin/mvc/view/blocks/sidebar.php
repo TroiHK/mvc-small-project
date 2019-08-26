@@ -22,7 +22,7 @@
 
     <!-- Divider -->
     <hr class="sidebar-divider">
-
+    <?php if ($_SESSION["permission"] != 2) { ?>
     <!-- Nav Item - Charts -->
     <li class="nav-item <?php echo $page_slug === 'vol' ? 'active' : '' ?>">
         <a class="nav-link" href="/admin/vol/?lang=<?php echo LANGUAGE_CODE ?>">
@@ -35,6 +35,7 @@
             <i class="fas fa-list"></i>
             <span><?php echo _pll('Category'); ?></span></a>
     </li>
+    <?php } ?>
 
     <li class="nav-item <?php echo $page_slug === 'backnumber' ? 'active' : '' ?>">
         <a class="nav-link" href="/admin/backnumber/?lang=<?php echo LANGUAGE_CODE ?>">
@@ -50,20 +51,20 @@
         </li>
     <?php } ?>
 
-    <!-- Divider -->
+    <?php if ($_SESSION["permission"] != 2) { ?>
     <hr class="sidebar-divider d-none d-md-block">
     <li class="nav-item <?php echo $page_slug === 'setting' ? 'active' : '' ?>">
         <a class="nav-link" href="/admin/setting/?lang=<?php echo LANGUAGE_CODE ?>">
             <i class="fas fa-cog"></i>
             <span><?php echo _pll('Setting'); ?></span></a>
     </li>
-
     <hr class="sidebar-divider d-none d-md-block">
     <li class="nav-item <?php echo $page_slug === 'helper' ? 'active' : '' ?>">
         <a class="nav-link" href="/admin/helper/?lang=<?php echo LANGUAGE_CODE ?>">
             <i class="far fa-life-ring"></i>
             <span><?php echo _pll('Helper'); ?></span></a>
     </li>
+    <?php } ?>
     <hr class="sidebar-divider d-none d-md-block">
 
     <!-- Sidebar Toggler (Sidebar) -->
