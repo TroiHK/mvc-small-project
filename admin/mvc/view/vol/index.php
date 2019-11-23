@@ -67,14 +67,14 @@
                       $url_thumb = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '-thumb.' . $img_path_parts['extension'];
                       $url_thumb = IMAGICK ? $url_thumb : $url;
                       ?>
-                      <img src="/<?php echo $url_thumb; ?>" alt="<?php echo stripslashes($value['vol_name']); ?>" width="75">
+                      <img src="/<?php echo $url_thumb; ?>" width="75">
                     <?php } ?>
                   </td>
                   <td><?php echo stripslashes($value['vol_name']); ?></td>
                   <?php $path_parts = pathinfo($value['vol_pdf']); ?>
                   <td>
                     <?php if ($path_parts) { ?>
-                      <a href="/admin/pdf.php?q=<?php echo str_replace('data/uploads/','',$value['vol_pdf']); ?>" target="_blank" title=""><?= $path_parts['basename'] ?></a>
+                      <a href="/<?php echo $value['vol_pdf']; ?>" target="_blank" title=""><?= $path_parts['basename'] ?></a>
                     <?php } ?>
                   </td>
                   <?php if ($_SESSION["permission"] == 1) { ?>

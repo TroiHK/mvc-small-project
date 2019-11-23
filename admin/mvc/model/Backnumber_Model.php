@@ -122,19 +122,19 @@ class Backnumber_Model extends KL_Model
 
         $html .= '<td>' . stripslashes($row['backnumber_series_name_' . LANGUAGE_CODE]) . '</td>';
         $html .= '<td>' . stripslashes($row['backnumber_content_' . LANGUAGE_CODE]) . '</td>';
-        $html .= '<td>';
+        $html .= '<td class="text-center">';
         if ($row['backnumber_image']) {
             $img_path_parts = pathinfo($row['backnumber_image']);
             $url = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '.' . $img_path_parts['extension'];
             $url_thumb = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '-thumb.' . $img_path_parts['extension'];
             $url_thumb = IMAGICK ? $url_thumb : $url;
-            $html .= '<img width="75" src="/' . $url_thumb . '" alt="' . $img_path_parts['basename'] . '">';
+            $html .= '<img width="75" src="/' . $url_thumb . '">';
         }
         $html .= '</td>';
 
         $html .= '<td class="text-center">';
         if ($vol[$row['backnumber_vol_id']]['vol_pdf']) {
-            $html .= '<a href="/admin/pdf.php?q=' . str_replace('data/uploads/','',$vol[$row['backnumber_vol_id']]['vol_pdf']) . '#page=' . $row['backnumber_pdf_page'] . '" target="_blank" title=""><i class="far fa-file-pdf text-danger"></i></a>';
+            $html .= '<a href="/' . $vol[$row['backnumber_vol_id']]['vol_pdf'] . '#page=' . $row['backnumber_pdf_page'] . '" target="_blank" title=""><i class="far fa-file-pdf text-danger"></i></a>';
         }
         $html .= '</td>';
 

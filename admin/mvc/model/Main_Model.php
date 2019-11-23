@@ -122,14 +122,63 @@ class Main_Model extends KL_Model
                         'value' => '%' . $v . '%',
                         'operator' => 'LIKE'
                     );
-                    $where[] = $where_item;
+                    if ( isset($where_item) ) $where[] = $where_item;
+                } elseif ($k == 'pdf_page' || $k == 'book_page') {
+                    if ( is_array($v) ) {
+                        $where_item = array(
+                            'key' => 'backnumber_' . $k,
+                            'value' => join("','",$v),
+                            'operator' => 'IN'
+                        );
+                    } else {
+                        if ( strpos($v, ',') !== false ) {
+                            $vls = explode(',', $v);
+                            $total_where = array();
+                            foreach ($vls as $key => $value) {
+                                $value = trim($value);
+                                $pos = strpos($value, '-');
+                                if ( $value === '' ) continue; 
+
+                                if ( $pos !== false ) {
+                                    $total_where[] = $this->get_where_by_dash($pos, $value, $k);
+                                } else {
+                                    $where_item = array(
+                                        'key' => 'backnumber_' . $k,
+                                        'value' => $value,
+                                        'operator' => '='
+                                    );
+                                    $total_where[] = $where_item;
+                                }
+                            }
+                        } else {
+                            $v = trim($v);
+                            $pos = strpos($v, '-');
+
+                            if ( $pos !== false ) {
+                                $where_item = $this->get_where_by_dash($pos, $v, $k);
+                            } else {
+                                $where_item = array(
+                                    'key' => 'backnumber_' . $k,
+                                    'value' => $v,
+                                    'operator' => '='
+                                );
+                            }
+                        }
+                    }
+
+                    if ( isset($total_where) && count($total_where) > 0 ) {
+                        $total_where['relation'] = "OR";
+                        $where[] = $total_where;
+                    } else {
+                        if ( isset($where_item) && $where_item != '' ) $where[] = $where_item;
+                    }
                 } else {
                     $where_item = array(
                         'key' => 'backnumber_' . $k,
                         'value' => is_array($v) ? join("','",$v) : $v,
                         'operator' => is_array($v) ? 'IN' : '='
                     );
-                    $where[] = $where_item;
+                    if ( isset($where_item) ) $where[] = $where_item;
                 }
             }
         }
@@ -169,11 +218,11 @@ class Main_Model extends KL_Model
         } else {
             $html .= '<td></td>';
         }
-        
+
         $html .= '<td>' . stripslashes($row['backnumber_series_name_' . LANGUAGE_CODE]) . '</td>';
         $html .= '<td>' . stripslashes($row['backnumber_content_' . LANGUAGE_CODE]) . '</td>';
 
-        $html .= '<td>';
+        $html .= '<td class="text-center">';
         if ($row['backnumber_image']) {
             $img_path_parts = pathinfo($row['backnumber_image']);
             $url = $img_path_parts['dirname'] . '/' . $img_path_parts['filename'] . '.' . $img_path_parts['extension'];
@@ -181,8 +230,8 @@ class Main_Model extends KL_Model
             $url_thumb = IMAGICK ? $url_thumb : $url;
             $text_translate = _pll('Vol') . ',' . _pll('PDF Page') . ',' . _pll('Book Page'). ',' . _pll('Download this page'). ',' . _pll('Download all pages');
 
-            $html .= '<a href="#showPdfModal" data-texts=" ' . $text_translate . ' " data-images="' . implode(",", $row['image_arr']) . '" data-vol="' . str_replace('data/uploads/','',$vol[$row['backnumber_vol_id']]['vol_pdf']) . '" data-vol-id="' . $row['backnumber_vol_id'] . '" data-pdf-page="' . $row['group_pdf_page'] . '" data-book-page="' . $row['group_book_page'] . '" class="show-pdf" data-toggle="modal">';
-            $html .= '<img width="75" src="/' . $url_thumb . '" alt="' . $img_path_parts['basename'] . '">';
+            $html .= '<a href="#showPdfModal" data-texts=" ' . $text_translate . ' " data-images="' . implode(",", $row['image_arr']) . '" data-vol="' . $vol[$row['backnumber_vol_id']]['vol_pdf'] . '" data-vol-id="' . $row['backnumber_vol_id'] . '" data-pdf-page="' . $row['group_pdf_page'] . '" data-book-page="' . $row['group_book_page'] . '" class="show-pdf" data-toggle="modal">';
+            $html .= '<img width="75" src="/' . $url_thumb . '" >';
             $html .= '</a>';
         }
         // $html .= '</td>';
@@ -241,5 +290,41 @@ class Main_Model extends KL_Model
         }
 
         return $html;
+    }
+
+    private function get_where_by_dash($pos, $v, $k) {
+        $where_item = '';
+        $length = strlen($v);
+        if ( $pos === 0 ) {
+            $where_item = array(
+                'key' => 'backnumber_' . $k,
+                'value' => ltrim($v, '-'),
+                'operator' => '<='
+            );
+        } elseif ($pos == $length - 1) {
+            $where_item = array(
+                'key' => 'backnumber_' . $k,
+                'value' => rtrim($v, '-'),
+                'operator' => '>='
+            );
+        } else {
+            $vls = explode('-', $v);
+            if ( $vls[0] < $vls[1] ) {
+                for($i = $vls[0]; $i <= $vls[1]; $i++){
+                    $arrIn[$i] = $i * 1;
+                }
+            } else {
+                for($i = $vls[1]; $i <= $vls[0]; $i++){
+                    $arrIn[$i] = $i * 1;
+                }
+            }
+
+            $where_item = array(
+                'key' => 'backnumber_' . $k,
+                'value' => join("','",$arrIn),
+                'operator' => 'IN'
+            );
+        }
+        return $where_item;
     }
 }

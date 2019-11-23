@@ -1,4 +1,6 @@
-<?php if (!defined('PATH_SYSTEM')) die('Bad requested!');
+<?php
+
+if (!defined('PATH_SYSTEM')) die('Bad requested!');
 
 class Category_Controller extends Base_Controller
 {

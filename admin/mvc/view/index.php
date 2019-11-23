@@ -15,8 +15,8 @@
                   <label for="staticEmail" class="col-md-3 col-form-label"><?php echo _pll('Vol'); ?>:</label>
                   <div class="col-md-9 text-left">
                     <select class="form-control rounded-0 select2" name="vol_id[]" multiple>
-                      <?php 
-                      $select = isset($vol_id) ? $vol_id : array(); 
+                      <?php
+                      $select = isset($vol_id) ? $vol_id : array();
                       $all_select = isset($vol_id) && in_array('', $select) ? " selected" : "";
                       ?>
                       <option value=''<?php echo $all_select ?>><?php echo _pll('All'); ?></option>
@@ -45,7 +45,7 @@
                 <div class="form-group row ">
                   <label for="staticEmail" class="col-md-3 col-form-label"><?php echo _pll('PDF Page'); ?>:</label>
                   <div class="col-md-9">
-                    <input type="number" min="0" name="pdf_page" value="<?php echo $pdf_page; ?>" class="form-control rounded-0" />
+                    <input type="text" name="pdf_page" value="<?php echo $pdf_page; ?>" class="form-control rounded-0" />
                   </div>
                 </div>
               </div>
@@ -53,7 +53,7 @@
                 <div class="form-group row ">
                   <label for="staticEmail" class="col-md-3 col-form-label"><?php echo _pll('Book Page'); ?>:</label>
                   <div class="col-md-9">
-                    <input type="number" min="0" name="book_page" value="<?php echo $book_page; ?>" class="form-control rounded-0" />
+                    <input type="text" name="book_page" value="<?php echo $book_page; ?>" class="form-control rounded-0" />
                   </div>
                 </div>
               </div>
@@ -148,8 +148,8 @@
 <!-- Show PDF Modal HTML -->
 <div id="showPdfModal" class="modal fade md-modal">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">          
+    <div class="modal-content d-block">
+      <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
       </div>
       <div class="modal-body loadding text-center">

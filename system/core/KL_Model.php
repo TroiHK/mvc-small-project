@@ -242,7 +242,13 @@ class KL_Model
                 foreach ($v_lv1 as $k_lv2 => $v_lv2) {
                     if ($k_lv2 === 'relation') continue;
                     $operator = isset($v_lv2['operator']) ? $v_lv2['operator'] : '=';
-                    $conditions .= $v_lv2['key'] . " " . $operator . " '" . addslashes($v_lv2['value']) . "'" . $relation_lv1;
+
+                    if ( $operator === 'IN' ) {
+                        if ( !empty($v_lv2['value']) )
+                            $conditions .= $v_lv2['key'] . " " . $operator . " ('" . $v_lv2['value'] . "')" . $relation_lv1;
+                    } else {
+                        $conditions .= $v_lv2['key'] . " " . $operator . " '" . addslashes($v_lv2['value']) . "'" . $relation_lv1;
+                    }
                 }
 
                 $conditions = trim($conditions, $relation_lv1);
